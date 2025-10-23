@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Order History</h2>
+
+  {% if orders and orders|length > 0 %}
+  <table class="table table-hover table-bordered mt-3">
+    <thead class="thead-dark">
+      <tr>
+        <th>Order #</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th class="text-right">Items</th>
+        <th class="text-right">Total</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for o in orders %}
+      <tr>
+        <td>{{ o.order_id }}</td>
+        <td>{{ o.time_ordered }}</td>
+        <td>{{ o.status }}</td>
+        <td class="text-right">{{ o.items_count }}</td>
+        <td class="text-right">${{ '%.2f'|format(o.total_price) }}</td>
+        <td class="text-right">
+          <a class="btn btn-sm btn-outline-primary"
+             href="{{ url_for('orders.order_detail', order_id=o.order_id) }}">
+            View
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p>You have no orders yet.</p>
+    <a class="btn btn-outline-dark" href="{{ url_for('index.index') }}">Start shopping</a>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Your Cart</h2>
+
+  {% if items and items|length > 0 %}
+  <table class="table table-hover table-bordered">
+    <thead class="thead-dark">
+      <tr>
+        <th>Product</th>
+        <th>Seller</th>
+        <th class="text-right">Unit Price</th>
+        <th class="text-center">Qty</th>
+        <th class="text-right">Line Total</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in items %}
+      <tr>
+        <td>#{{ it.product_id }} — {{ it.product_name }}</td>
+        <td>#{{ it.seller_id }}</td>
+        <td class="text-right">${{ '%.2f'|format(it.unit_price) }}</td>
+        <td class="text-center" style="width: 160px;">
+          <form method="post" action="{{ url_for('cart.cart_update') }}" class="form-inline justify-content-center">
+            <input type="hidden" name="cart_item_id" value="{{ it.cart_item_id }}">
+            <input class="form-control form-control-sm mr-2" type="number" name="quantity" min="0" value="{{ it.quantity_required }}">
+            <button class="btn btn-sm btn-outline-primary" type="submit">Update</button>
+          </form>
+        </td>
+        <td class="text-right">
+          ${{ '%.2f'|format(it.quantity_required * it.unit_price) }}
+        </td>
+        <td class="text-right">
+          <form method="post" action="{{ url_for('cart.cart_remove') }}">
+            <input type="hidden" name="cart_item_id" value="{{ it.cart_item_id }}">
+            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th colspan="4" class="text-right">Cart Total</th>
+        <th class="text-right">${{ '%.2f'|format(cart_total) }}</th>
+        <th></th>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div class="d-flex justify-content-between">
+    <a class="btn btn-outline-dark" href="{{ url_for('index.index') }}">Continue shopping</a>
+    <a class="btn btn-primary" href="{{ url_for('checkout.checkout_page') }}">Proceed to Checkout</a>
+  </div>
+  {% else %}
+    <p>Your cart is empty.</p>
+    <a class="btn btn-outline-dark" href="{{ url_for('index.index') }}">Continue shopping</a>
+  {% endif %}
+</div>
+{% endblock %}

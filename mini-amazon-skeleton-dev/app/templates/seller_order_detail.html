@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Order #{{ order.order_id }}</h2>
+  <p><strong>Buyer:</strong> {{ order.buyer_name }}</p>
+  <p><strong>Delivery Address:</strong> {{ order.delivery_address }}</p>
+  <p><strong>Date:</strong> {{ order.time_ordered }}</p>
+  
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td>{{ item.product_name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>${{ '%.2f'|format(item.unit_price) }}</td>
+        <td>{{ item.fulfillment_status }}</td>
+        <td>
+          {% if item.fulfillment_status != 'Fulfilled' %}
+          <form method="POST" action="{{ url_for('seller.fulfill_item', order_item_id=item.order_item_id) }}">
+            <button type="submit" class="btn btn-sm btn-success">Mark as Fulfilled</button>
+          </form>
+          {% else %}
+          <span class="badge badge-success">✓ Fulfilled</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  
+  <a href="{{ url_for('seller.orders') }}" class="btn btn-secondary">Back to Orders</a>
+</div>
+{% endblock %}

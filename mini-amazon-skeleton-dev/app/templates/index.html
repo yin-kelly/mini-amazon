@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<br><br>
+
+<div class="container" style="max-width: 1120px;">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="mb-0">Browse Products</h2>
+      <small class="text-muted">{{ avail_products|length }} products found</small>
+    </div>
+    <form method="get" class="form-inline">
+      <div class="mr-2">
+        <select class="custom-select" name="category" onchange="this.form.submit()">
+          {% for c in categories %}
+            <option value="{{ c }}" {% if current_category == c %}selected{% endif %}>{{ 'All Categories' if c=='all' else c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <select class="custom-select" name="sort" onchange="this.form.submit()">
+          <option value="name_asc" {% if current_sort == 'name_asc' %}selected{% endif %}>Name (A → Z)</option>
+          <option value="name_desc" {% if current_sort == 'name_desc' %}selected{% endif %}>Name (Z → A)</option>
+          <option value="price_asc" {% if current_sort == 'price_asc' %}selected{% endif %}>Price (low → high)</option>
+          <option value="price_desc" {% if current_sort == 'price_desc' %}selected{% endif %}>Price (high → low)</option>
+          <option value="rating_desc" {% if current_sort == 'rating_desc' %}selected{% endif %}>Rating (high → low)</option>
+          <option value="rating_asc" {% if current_sort == 'rating_asc' %}selected{% endif %}>Rating (low → high)</option>
+          <option value="sales_desc" {% if current_sort == 'sales_desc' %}selected{% endif %}>Best Sellers</option>
+          <option value="sales_asc" {% if current_sort == 'sales_asc' %}selected{% endif %}>Least Popular</option>
+        </select>
+      </div>
+      <noscript>
+        <button type="submit" class="btn btn-sm btn-outline-primary ml-2">Apply</button>
+      </noscript>
+    </form>
+  </div>
+
+  <div class="product-grid">
+    {% for product in avail_products %}
+      <div class="product-card">
+        <div class="product-image" style="background-image: url('{{ product.image or "https://picsum.photos/seed/" ~ product.id ~ "/600/400" }}');"></div>
+          <div class="product-body">
+            <h5 class="product-title">{{ product.name }}</h5>
+            <p class="product-seller"><small class="text-muted">Sold by: {{ product.seller_name or 'Unknown Seller' }}</small></p>
+            <p class="product-price">${{ '%.2f'|format(product.price) }}</p>
+            {% if product.avg_rating > 0 %}
+            <div class="product-rating mb-2">
+              <span class="text-warning">★</span> {{ '%.1f'|format(product.avg_rating) }} 
+              <small class="text-muted">({{ product.total_sales }} sold)</small>
+            </div>
+            {% endif %}
+            {% if product.category %}
+            <span class="badge badge-light product-badge">{{ product.category }}</span>
+            {% endif %}
+          <div class="mt-3 d-flex justify-content-between align-items-center">
+            <a href="{{ url_for('index.product_detail', product_id=product.id) }}" class="btn btn-sm btn-outline-dark">View Details</a>
+            {% if current_user.is_authenticated %}
+              {% if product.id in wishlist_product_ids %}
+              <form action="{{ url_for('wishlist.wishlist_remove', product_id=product.id) }}" method="POST">
+                <input type="hidden" name="redirect_to" value="{{ url_for('index.index') }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                  <i class="fas fa-heart"></i> Remove from Wishlist
+                </button>
+              </form>
+              {% else %}
+              <form action="{{ url_for('wishlist.wishlist_add', product_id=product.id) }}" method="POST">
+                <input type="hidden" name="redirect_to" value="{{ url_for('index.index') }}">
+                <button type="submit" class="btn btn-sm btn-primary">
+                  <i class="far fa-heart"></i> Add to Wishlist
+                </button>
+              </form>
+              {% endif %}
+            {% else %}
+            <a class="btn btn-sm btn-secondary" href="{{ url_for('users.login') }}">Log in to save</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
