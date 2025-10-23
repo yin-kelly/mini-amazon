@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Checkout Problem</h2>
+<p>We couldn’t place your order:</p>
+<ul>
+  {% for e in errors %}
+    <li>{{ e }}</li>
+  {% endfor %}
+</ul>
+<a href="{{ url_for('cart.cart_page') }}" class="btn btn-secondary">Back to Cart</a>
+{% endblock %}

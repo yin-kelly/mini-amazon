@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h4>Edit Inventory Item</h4>
+        </div>
+        <div class="card-body">
+          <div class="row mb-4">
+            <div class="col-md-4">
+              {% if product.image %}
+                <img src="{{ product.image }}" alt="{{ product.name }}" class="img-fluid rounded">
+              {% else %}
+                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 150px;">
+                  <span class="text-muted">No Image</span>
+                </div>
+              {% endif %}
+            </div>
+            <div class="col-md-8">
+              <h5>{{ product.name }}</h5>
+              <p class="text-muted">{{ product.description }}</p>
+              <p><strong>Category:</strong> {{ product.category or 'Not specified' }}</p>
+            </div>
+          </div>
+          
+          <form method="POST">
+            <h5>Product Information</h5>
+            <div class="mb-3">
+              <label for="name" class="form-label">Product Name *</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="name" 
+                     name="name" 
+                     value="{{ product.name }}" 
+                     required>
+            </div>
+            <div class="mb-3">
+              <label for="description" class="form-label">Product Description</label>
+              <textarea class="form-control" 
+                        id="description" 
+                        name="description" 
+                        rows="3">{{ product.description or '' }}</textarea>
+            </div>
+            <div class="mb-3">
+              <label for="category" class="form-label">Category</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="category" 
+                     name="category" 
+                     value="{{ product.category or '' }}">
+            </div>
+            <div class="mb-3">
+              <label for="image" class="form-label">Image URL</label>
+              <input type="url" 
+                     class="form-control" 
+                     id="image" 
+                     name="image" 
+                     value="{{ product.image or '' }}">
+            </div>
+
+            <hr>
+
+            <h5>Inventory Information</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="price" class="form-label">Price *</label>
+                  <div class="input-group">
+                    <span class="input-group-addon">$</span>
+                    <input type="number" 
+                           class="form-control" 
+                           id="price" 
+                           name="price" 
+                           value="{{ inventory_item.price }}" 
+                           step="0.01" 
+                           min="0.01" 
+                           required>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="quantity" class="form-label">Stock Quantity *</label>
+                  <input type="number" 
+                         class="form-control" 
+                         id="quantity" 
+                         name="quantity" 
+                         value="{{ inventory_item.quantity }}" 
+                         min="0" 
+                         required>
+                </div>
+              </div>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+              <a href="{{ url_for('seller.index') }}" class="btn btn-secondary">Cancel</a>
+              <button type="submit" class="btn btn-primary">Update Product & Inventory</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
