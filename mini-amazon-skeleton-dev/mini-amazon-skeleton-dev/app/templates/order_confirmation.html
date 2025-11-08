@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Order placed 🎉</h2>
+  <p>Your order #{{ order_id }} has been placed successfully.</p>
+  <a class="btn btn-primary" href="{{ url_for('index.index') }}">Back to shopping</a>
+</div>
+{% endblock %}

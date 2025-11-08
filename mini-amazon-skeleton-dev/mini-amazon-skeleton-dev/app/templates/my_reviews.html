@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>My Reviews</h2>
+    <div class="btn-group">
+      <a href="{{ url_for('reviews.my_reviews', sort='date') }}" 
+         class="btn btn-sm {{ 'btn-primary' if sort == 'date' else 'btn-outline-primary' }}">
+        Sort by Date
+      </a>
+      <a href="{{ url_for('reviews.my_reviews', sort='rating') }}" 
+         class="btn btn-sm {{ 'btn-primary' if sort == 'rating' else 'btn-outline-primary' }}">
+        Sort by Rating
+      </a>
+    </div>
+  </div>
+
+  {% if reviews %}
+    <div class="row">
+      {% for r in reviews %}
+      <div class="col-md-6 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h5 class="card-title mb-0">{{ r.target_name }}</h5>
+              <span class="badge badge-secondary">{{ r.kind|title }}</span>
+            </div>
+            
+            <div class="rating mb-2">
+              {% for i in range(5) %}
+                {% if i < r.rating %}<span class="star filled text-warning">★</span>
+                {% else %}<span class="star text-muted">☆</span>
+                {% endif %}
+              {% endfor %}
+              <span class="ml-2">{{ r.rating }}/5</span>
+            </div>
+            
+            <p class="card-text">{{ r.feedback or 'No feedback provided' }}</p>
+            
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted">{{ r.created_at.strftime('%Y-%m-%d') }}</small>
+              <div class="btn-group btn-group-sm">
+                {% if r.kind == 'product' %}
+                  <a href="{{ url_for('reviews.new_product_review', product_id=r.target_id) }}" 
+                     class="btn btn-outline-primary">Edit</a>
+                {% else %}
+                  <a href="{{ url_for('reviews.new_seller_review', seller_id=r.target_id) }}" 
+                     class="btn btn-outline-primary">Edit</a>
+                {% endif %}
+                <button class="btn btn-outline-danger" onclick="deleteReview('{{ r.kind }}', '{{ r.target_id }}')">
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-5">
+      <h4 class="text-muted">No reviews yet</h4>
+      <p class="text-muted">Start reviewing products and sellers you've purchased from!</p>
+      <a href="{{ url_for('orders.orders_page') }}" class="btn btn-primary">View Orders</a>
+    </div>
+  {% endif %}
+</div>
+
+<style>
+.star {
+  font-size: 1.2em;
+}
+.star.filled {
+  color: #ffc107;
+}
+</style>
+
+<script>
+function deleteReview(kind, targetId) {
+  if (confirm('Are you sure you want to delete this review?')) {
+    // Create a form to submit the deletion
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = kind === 'product' 
+      ? '{{ url_for("reviews.delete_product_review", product_id=0) }}'.replace('0', targetId)
+      : '{{ url_for("reviews.delete_seller_review", seller_id=0) }}'.replace('0', targetId);
+    
+    // Add CSRF token if available
+    const csrfToken = document.querySelector('meta[name=csrf-token]');
+    if (csrfToken) {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'csrf_token';
+      input.value = csrfToken.getAttribute('content');
+      form.appendChild(input);
+    }
+    
+    document.body.appendChild(form);
+    form.submit();
+  }
+}
+</script>
+{% endblock %}

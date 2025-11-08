@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h3>{{ title }}</h3>
+  <form method="POST">
+    <div class="mb-3">
+      <label class="form-label">Rating (1–5)</label>
+      <input
+        type="number"
+        name="rating"
+        min="1"
+        max="5"
+        required
+        class="form-control"
+        value="{{ rating or '' }}"
+      >
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Feedback</label>
+      <textarea
+        name="feedback"
+        class="form-control"
+        rows="4"
+        placeholder="Write your thoughts here..."
+      >{{ feedback or '' }}</textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">{{ submit_label }}</button>
+    <a href="{{ url_for('reviews.my_reviews') }}" class="btn btn-outline-secondary ms-2">Cancel</a>
+  </form>
+</div>
+{% endblock %}

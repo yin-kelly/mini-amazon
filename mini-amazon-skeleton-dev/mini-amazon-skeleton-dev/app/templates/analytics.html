@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+      <i class="fas fa-chart-bar mr-2 text-primary"></i>Spending Analytics
+    </h2>
+    <a href="{{ url_for('users.profile') }}" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left mr-2"></i>Back to Profile
+    </a>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="row mb-4">
+    <div class="col-md-3 mb-3">
+      <div class="card border-0 bg-success text-white h-100">
+        <div class="card-body text-center">
+          <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+          <h4 class="mb-1">${{ "{:.2f}".format(spending_by_category|sum(attribute='amount')) }}</h4>
+          <small>Total Spent</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card border-0 bg-info text-white h-100">
+        <div class="card-body text-center">
+          <i class="fas fa-tags fa-2x mb-2"></i>
+          <h4 class="mb-1">{{ spending_by_category|length }}</h4>
+          <small>Categories</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card border-0 bg-warning text-white h-100">
+        <div class="card-body text-center">
+          <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+          <h4 class="mb-1">{{ monthly_spending|sum(attribute='order_count') }}</h4>
+          <small>Total Orders</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card border-0 bg-primary text-white h-100">
+        <div class="card-body text-center">
+          <i class="fas fa-store fa-2x mb-2"></i>
+          <h4 class="mb-1">{{ top_sellers|length }}</h4>
+          <small>Top Sellers</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spending by Category -->
+  {% if spending_by_category %}
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0 text-primary">
+            <i class="fas fa-chart-pie mr-2"></i>Spending by Category
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            {% for category in spending_by_category %}
+            <div class="col-md-6 col-lg-4 mb-3">
+              <div class="card border-left-primary h-100">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 class="card-title mb-1">{{ category.category }}</h6>
+                      <p class="card-text text-success font-weight-bold mb-0">${{ "{:.2f}".format(category.amount) }}</p>
+                    </div>
+                    <div class="text-right">
+                      <div class="progress" style="width: 80px; height: 8px;">
+                        <div class="progress-bar bg-primary" role="progressbar" 
+                             style="width: {{ (category.amount / spending_by_category|sum(attribute='amount') * 100)|round }}%"></div>
+                      </div>
+                      <small class="text-muted">{{ (category.amount / spending_by_category|sum(attribute='amount') * 100)|round }}%</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Monthly Spending Trends -->
+  {% if monthly_spending %}
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0 text-primary">
+            <i class="fas fa-chart-line mr-2"></i>Monthly Spending Trends
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="thead-light">
+                <tr>
+                  <th>Month</th>
+                  <th class="text-right">Amount Spent</th>
+                  <th class="text-center">Orders</th>
+                  <th class="text-right">Avg per Order</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for month in monthly_spending %}
+                <tr>
+                  <td><strong>{{ month.month }}</strong></td>
+                  <td class="text-right text-success font-weight-bold">${{ "{:.2f}".format(month.amount) }}</td>
+                  <td class="text-center">{{ month.order_count }}</td>
+                  <td class="text-right">${{ "{:.2f}".format(month.amount / month.order_count if month.order_count > 0 else 0) }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Top Sellers -->
+  {% if top_sellers %}
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0 text-primary">
+            <i class="fas fa-star mr-2"></i>Top Sellers
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            {% for seller in top_sellers %}
+            <div class="col-md-6 col-lg-4 mb-3">
+              <div class="card border-left-success h-100">
+                <div class="card-body">
+                  <h6 class="card-title text-primary">{{ seller.name }}</h6>
+                  <p class="card-text mb-1">
+                    <strong class="text-success">${{ "{:.2f}".format(seller.amount) }}</strong> spent
+                  </p>
+                  <small class="text-muted">{{ seller.order_count }} orders</small>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- No Data Message -->
+  {% if not spending_by_category and not monthly_spending and not top_sellers %}
+  <div class="card shadow-sm">
+    <div class="card-body text-center py-5">
+      <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+      <h6 class="text-muted">No Spending Data Available</h6>
+      <p class="text-muted">Start making purchases to see your spending analytics!</p>
+      <a href="{{ url_for('index.index') }}" class="btn btn-primary">
+        <i class="fas fa-shopping-cart mr-2"></i>Start Shopping
+      </a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+.border-left-primary {
+  border-left: 4px solid #007bff !important;
+}
+
+.border-left-success {
+  border-left: 4px solid #28a745 !important;
+}
+
+.card.border-left-primary,
+.card.border-left-success {
+  transition: transform 0.2s ease-in-out;
+}
+
+.card.border-left-primary:hover,
+.card.border-left-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+</style>
+{% endblock %}

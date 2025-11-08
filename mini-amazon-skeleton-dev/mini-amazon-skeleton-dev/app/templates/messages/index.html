@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Messages{% endblock %}
+{% block content %}
+
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Messages</h2>
+    <a href="{{ url_for('orders.orders_page') }}" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left"></i> Back to Orders
+    </a>
+  </div>
+
+  {% if threads %}
+    <div class="row">
+      {% for thread in threads %}
+      <div class="col-md-6 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h5 class="card-title mb-0">Order #{{ thread.order_id }}</h5>
+              <span class="badge badge-secondary">{{ thread.order_status }}</span>
+            </div>
+            
+            <div class="mb-2">
+              <small class="text-muted">
+                <strong>Buyer:</strong> {{ thread.buyer_name }}<br>
+                <strong>Seller:</strong> {{ thread.seller_name }}<br>
+                <strong>Order Date:</strong> {{ thread.order_date.strftime('%Y-%m-%d') }}
+              </small>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted">Started {{ thread.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+              <a href="{{ url_for('messaging.view_thread', thread_id=thread.id) }}" 
+                 class="btn btn-primary btn-sm">
+                View Messages
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-5">
+      <h4 class="text-muted">No messages yet</h4>
+      <p class="text-muted">Start a conversation with sellers about your orders!</p>
+      <a href="{{ url_for('orders.orders_page') }}" class="btn btn-primary">View Orders</a>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

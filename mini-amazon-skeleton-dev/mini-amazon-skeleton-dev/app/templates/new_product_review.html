@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h4>Review {{ product_name }}</h4>
+  <form method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="rating">Rating (1–5)</label>
+      <select id="rating" name="rating" class="form-control" required>
+        <option value="">Choose…</option>
+        {% for r in [1,2,3,4,5] %}
+        <option value="{{ r }}" {% if existing_rating == r %}selected{% endif %}>{{ r }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group mt-2">
+      <label for="feedback">Feedback</label>
+      <textarea id="feedback" name="feedback" class="form-control" rows="4"
+                placeholder="What did you think?">{{ existing_feedback or '' }}</textarea>
+    </div>
+    <div class="form-group mt-2">
+      <label for="files">Images (optional, max 3 images)</label>
+      <input type="file" id="files" name="files" class="form-control-file" 
+             multiple accept="image/*" max="3">
+      <small class="form-text text-muted">
+        Supported formats: PNG, JPG, JPEG, GIF, WebP. Maximum 3 images.
+      </small>
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Submit review</button>
+    <a class="btn btn-link mt-3" href="{{ url_for('reviews.my_reviews') }}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

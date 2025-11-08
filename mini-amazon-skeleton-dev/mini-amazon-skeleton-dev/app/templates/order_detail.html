@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Order #{{ order.order_id }}</h3>
+    <span class="badge
+      {% if order.status in ['Delivered','Success','Successful','Completed'] %}badge-success
+      {% elif order.status in ['Shipped','Shipping'] %}badge-info
+      {% elif order.status in ['Processing','Partially Fulfilled'] %}badge-warning
+      {% elif order.status in ['Failed','Cancelled'] %}badge-danger
+      {% else %}badge-secondary{% endif %}">
+      {{ order.status }}
+    </span>
+  </div>
+
+  <p class="text-muted mb-4">
+    Placed on {{ order.time_ordered }}
+  </p>
+
+  <!-- Fulfillment timeline -->
+  {% set steps = ['Placed','Processing','Shipped','Delivered'] %}
+  {% set current = order.status %}
+  <div class="progress mb-4" style="height: 12px;">
+    {% for s in steps %}
+      {% set idx = loop.index0 %}
+      {% set active = (
+          (current == 'Placed' and idx <= 0) or
+          (current in ['Processing','Partially Fulfilled'] and idx <= 1) or
+          (current in ['Shipped','Shipping'] and idx <= 2) or
+          (current in ['Delivered','Success','Successful','Completed'] and idx <= 3)
+      ) %}
+      <div class="progress-bar {% if active %}bg-success{% else %}bg-light{% endif %}"
+           role="progressbar"
+           style="width: 25%; border-right: 1px solid #fff;"
+           aria-valuenow="{{ 25 * loop.index }}" aria-valuemin="0" aria-valuemax="100">
+      </div>
+    {% endfor %}
+  </div>
+  <div class="d-flex justify-content-between mb-4 small text-uppercase text-muted">
+    <span>Placed</span><span>Processing</span><span>Shipped</span><span>Delivered</span>
+  </div>
+
+  <table class="table table-hover table-bordered">
+    <thead class="thead-dark">
+      <tr>
+        <th>Product</th>
+        <th>Seller</th>
+        <th class="text-center">Qty</th>
+        <th class="text-right">Unit Price</th>
+        <th class="text-right">Line Total</th>
+        <th>Status</th>
+        <th class="text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in items %}
+      <tr>
+        <td>#{{ it.product_id }} — {{ it.product_name }}</td>
+        <td>#{{ it.seller_id }}</td>
+        <td class="text-center">{{ it.quantity }}</td>
+        <td class="text-right">${{ '%.2f'|format(it.unit_price) }}</td>
+        <td class="text-right">${{ '%.2f'|format(it.line_total) }}</td>
+        <td>
+          <span class="badge
+            {% if it.item_status in ['Delivered','Fulfilled'] %}badge-success
+            {% elif it.item_status in ['Shipped','Shipping'] %}badge-info
+            {% elif it.item_status in ['Processing','Pending'] %}badge-warning
+            {% elif it.item_status in ['Failed','Cancelled'] %}badge-danger
+            {% else %}badge-secondary{% endif %}">
+            {{ it.item_status }}
+          </span>
+        </td>
+        <td class="text-center">
+          {% set can_review = it.item_status in ['Delivered','Fulfilled'] or order.status in ['Delivered','Completed','Successful','Success'] %}
+          <div class="btn-group btn-group-sm">
+            <form method="POST" action="{{ url_for('users.buy_again_product', product_id=it.product_id) }}" style="display: inline;">
+              <button type="submit" class="btn btn-outline-success btn-sm" 
+                      title="Add this product to your cart">
+                Buy Again
+              </button>
+            </form>
+            <a class="btn btn-outline-primary btn-sm"
+               href="{{ url_for('reviews.new_product_review', product_id=it.product_id)}}">
+              Review Product
+            </a>
+            <a class="btn btn-outline-secondary btn-sm"
+               href="{{ url_for('reviews.new_seller_review', seller_id=it.seller_id)}}">
+              Review Seller
+            </a>
+            <form method="POST" action="{{ url_for('messaging.start_thread', order_id=order.order_id, seller_id=it.seller_id) }}" style="display: inline;">
+              <button type="submit" class="btn btn-outline-info btn-sm">
+                <i class="fas fa-comments"></i> Message
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th colspan="4" class="text-right">Subtotal</th>
+        <th class="text-right">${{ '%.2f'|format(subtotal) }}</th>
+        <th colspan="2"></th>
+      </tr>
+      <tr>
+        <th colspan="4" class="text-right">Total (at placement)</th>
+        <th class="text-right">${{ '%.2f'|format(order.total_price) }}</th>
+        <th colspan="2"></th>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div class="d-flex justify-content-between mt-3">
+    <a href="{{ url_for('orders.orders_page') }}" class="btn btn-outline-dark">Back to Orders</a>
+    <div>
+      <form method="POST" action="{{ url_for('users.buy_again_order', order_id=order.order_id) }}" style="display: inline;">
+        <button type="submit" class="btn btn-success btn-sm mr-2">
+          Buy All Again
+        </button>
+      </form>
+      <a href="{{ url_for('index.index') }}" class="btn btn-primary">Continue Shopping</a>
+    </div>
+  </div>
+</div>
+
+<style>
+.progress { background-color: #e9ecef; }
+.badge { font-size: 0.85rem; }
+</style>
+{% endblock %}

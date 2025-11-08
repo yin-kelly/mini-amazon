@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+
+<div class="container my-4">
+  <h3 class="mb-4">Hello, {{ user.firstname }} {{ user.lastname }}</h3>
+
+  <!-- Top Row: Profile Info, Messages, Analytics -->
+  <div class="row mb-4">
+    <!-- Profile Info -->
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Profile Info</h5>
+          <div class="flex-grow-1">
+            <p class="mb-2"><strong>Name:</strong> {{ user.firstname }} {{ user.lastname }}</p>
+            <p class="mb-2"><strong>Email:</strong> {{ user.email }}</p>
+            <p class="mb-2"><strong>Address:</strong> {{ user.address or "Not provided" }}</p>
+            <p class="mb-2"><strong>ID:</strong> {{ user.id }}</p>
+          </div>
+          <div class="mt-auto">
+            <div class="d-grid gap-2">
+              <a href="{{ url_for('users.edit_profile') }}" class="btn btn-sm btn-outline-primary">Edit Profile</a>
+              <a href="{{ url_for('seller.public_seller_page', seller_id=user.id) }}" class="btn btn-sm btn-outline-success">Public View</a>
+              <a href="{{ url_for('users.logout') }}" class="btn btn-sm btn-outline-danger">Logout</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Messages</h5>
+          <div class="flex-grow-1">
+            <p class="card-text text-muted">View your messages and conversations with sellers.</p>
+          </div>
+          <div class="mt-auto">
+            <a class="btn btn-sm btn-outline-info w-100" href="{{ url_for('messaging.index') }}">
+              <i class="fas fa-comments mr-2"></i>View Messages
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reviews -->
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">My Recent Reviews</h5>
+          <div class="flex-grow-1">
+            <p class="card-text text-muted">View and manage your product and seller reviews.</p>
+          </div>
+          <div class="mt-auto">
+            <a href="{{ url_for('reviews.my_reviews') }}" class="btn btn-sm btn-outline-primary w-100">
+              <i class="fas fa-star mr-2"></i>View Reviews
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Row: Balance and Analytics -->
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Balance and Payments</h5>
+          <div class="flex-grow-1">
+            <div class="mb-3">
+              <h4 class="text-success mb-1">${{ "{:.2f}".format((user.balance or 0)) }}</h4>
+              <p class="text-muted mb-0">Current Balance</p>
+            </div>
+            <p class="card-text text-muted">Add funds or withdraw from your account</p>
+          </div>
+          <div class="mt-auto">
+            <a href="{{ url_for('users.balance_management') }}" class="btn btn-sm btn-outline-success w-100">
+              <i class="fas fa-wallet mr-2"></i>Manage Balance
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics -->
+    <div class="col-md-6 mb-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Spending Analytics</h5>
+          <div class="flex-grow-1">
+            <p class="card-text text-muted">View your spending patterns, categories, and trends.</p>
+          </div>
+          <div class="mt-auto">
+            <a class="btn btn-sm btn-outline-primary w-100" href="{{ url_for('users.analytics') }}">
+              <i class="fas fa-chart-bar mr-2"></i>View Analytics
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+.card-title {
+  color: #2c3e50;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.btn-sm {
+  font-size: 0.875rem;
+  padding: 0.375rem 0.75rem;
+}
+
+.text-success {
+  color: #28a745 !important;
+}
+</style>
+{% endblock %}

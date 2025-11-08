@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Order History</h2>
+    <a href="{{ url_for('index.index') }}" class="btn btn-outline-primary">Continue Shopping</a>
+  </div>
+
+  <!-- Search and Filter Form -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Search & Filter Orders</h5>
+          <form method="GET" action="{{ url_for('orders.orders_page') }}" class="row g-3">
+            <div class="col-md-3">
+              <label for="search_item" class="form-label">Search Item</label>
+              <input type="text" class="form-control" id="search_item" name="search_item" 
+                     value="{{ request.args.get('search_item', '') }}" placeholder="Product name...">
+            </div>
+            <div class="col-md-3">
+              <label for="search_seller" class="form-label">Seller</label>
+              <input type="text" class="form-control" id="search_seller" name="search_seller" 
+                     value="{{ request.args.get('search_seller', '') }}" placeholder="Seller name...">
+            </div>
+            <div class="col-md-2">
+              <label for="date_from" class="form-label">From Date</label>
+              <input type="date" class="form-control" id="date_from" name="date_from" 
+                     value="{{ request.args.get('date_from', '') }}">
+            </div>
+            <div class="col-md-2">
+              <label for="date_to" class="form-label">To Date</label>
+              <input type="date" class="form-control" id="date_to" name="date_to" 
+                     value="{{ request.args.get('date_to', '') }}">
+            </div>
+            <div class="col-md-2">
+              <label for="status_filter" class="form-label">Status</label>
+              <select class="form-control" id="status_filter" name="status_filter">
+                <option value="">All Status</option>
+                <option value="Delivered" {% if request.args.get('status_filter') == 'Delivered' %}selected{% endif %}>Delivered</option>
+                <option value="Shipped" {% if request.args.get('status_filter') == 'Shipped' %}selected{% endif %}>Shipped</option>
+                <option value="Processing" {% if request.args.get('status_filter') == 'Processing' %}selected{% endif %}>Processing</option>
+                <option value="Failed" {% if request.args.get('status_filter') == 'Failed' %}selected{% endif %}>Failed</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <button type="submit" class="btn btn-primary btn-sm">Search</button>
+              <a href="{{ url_for('orders.orders_page') }}" class="btn btn-outline-secondary btn-sm">Clear</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if orders and orders|length > 0 %}
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">Order #</th>
+              <th scope="col">Date</th>
+              <th scope="col">Status</th>
+              <th scope="col" class="text-center">Items</th>
+              <th scope="col" class="text-center">Quantity</th>
+              <th scope="col" class="text-end">Total</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+            <tr>
+              <td><strong>#{{ order.order_id }}</strong></td>
+              <td>{{ order.time_ordered.strftime('%Y-%m-%d %H:%M') if order.time_ordered else 'N/A' }}</td>
+              <td>
+                <span class="badge 
+                  {% if order.status in ['Delivered','Success','Successful','Completed'] %}badge-success
+                  {% elif order.status in ['Shipped','Shipping'] %}badge-info
+                  {% elif order.status in ['Processing','Partially Fulfilled'] %}badge-warning
+                  {% elif order.status in ['Failed','Cancelled'] %}badge-danger
+                  {% else %}badge-secondary{% endif %}">
+                  {{ order.status }}
+                </span>
+              </td>
+              <td class="text-center">{{ order.item_count }}</td>
+              <td class="text-center">{{ order.total_quantity }}</td>
+              <td class="text-end"><strong>${{ "{:.2f}".format(order.total_price) }}</strong></td>
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <a href="{{ url_for('orders.order_detail', order_id=order.order_id) }}" 
+                     class="btn btn-outline-primary btn-sm" title="View Order Details">
+                    View Details
+                  </a>
+                  <form method="POST" action="{{ url_for('users.buy_again_order', order_id=order.order_id) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-outline-success btn-sm" title="Buy All Items Again">
+                      Buy Again
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% else %}
+    <div class="card shadow-sm">
+      <div class="card-body text-center py-5">
+        <h5 class="text-muted">No Orders Found</h5>
+        <p class="text-muted">No orders match your search criteria, or you haven't placed any orders yet.</p>
+        <a href="{{ url_for('index.index') }}" class="btn btn-primary">Start Shopping</a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

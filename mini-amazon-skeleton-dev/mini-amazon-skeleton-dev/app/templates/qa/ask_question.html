@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Ask Question - {{ product_name }}{% endblock %}
+{% block content %}
+
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Ask a Question</h2>
+        <a href="{{ url_for('index.product_detail', product_id=product_id) }}" class="btn btn-outline-secondary">
+          <i class="fas fa-arrow-left"></i> Back to Product
+        </a>
+      </div>
+      
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">{{ product_name }}</h5>
+          
+          <form method="POST">
+            <div class="form-group">
+              <label for="title">Question Title</label>
+              <input type="text" id="title" name="title" class="form-control" 
+                     placeholder="What would you like to know?" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="content">Question Details</label>
+              <textarea id="content" name="content" class="form-control" rows="5" 
+                        placeholder="Provide more details about your question..." required></textarea>
+            </div>
+            
+            <div class="d-flex justify-content-end">
+              <a href="{{ url_for('index.product_detail', product_id=product_id) }}" 
+                 class="btn btn-secondary mr-2">Cancel</a>
+              <button type="submit" class="btn btn-primary">Post Question</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
